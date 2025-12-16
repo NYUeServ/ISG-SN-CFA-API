@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_neyu_cfa_api.ChartfieldAccessAPI</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>ChartfieldAccessAPI</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var ChartfieldAccessAPI = Class.create();
+ChartfieldAccessAPI.prototype = {
+    initialize: function() {},
+    /**
+     * Update Approval API Call
+     * 
+     * @param {Object} params - Parameters object containing:
+     *   - serviceLinkId: Service link ID (required)
+     *   - reqNbr: Request number (required)
+     *   - assignedAppr: Assigned approver
+     *   - actionBy: Action performed by
+     *   - actionRemarks: Action remarks
+     *   - actionDate: Action date
+     *   - actionResult: Action result
+     *   - reqType: Request type
+     *   - ntfLevel: Notification level
+     *   - processSeq: Process sequence
+     *   - remoteUser: Remote user (defaults to 'sl_user')
+     * @returns {Object} Response object with error, status, and responseBody
+     */
+    updateApproval: function(params) {
+        try {
+            // Validate required parameters
+            if (!params || !params.serviceLinkId || !params.reqNbr) {
+                return {
+                    error: true,
+                    errorMessage: 'Missing required parameters: serviceLinkId and reqNbr are required',
+                    status: '400',
+                    responseBody: null
+                };
+            }
+
+
+            // Prepare request body
+            var requestBody = {
+                serviceLinkId: params.serviceLinkId || '',
+                reqNbr: params.reqNbr || '',
+                assignedAppr: params.assignedAppr || '',
+                actionBy: params.actionBy || '',
+                actionRemarks: params.actionRemarks || '',
+                actionDate: params.actionDate || '',
+                actionResult: params.actionResult || '',
+                reqType: params.reqType || '',
+                ntfLevel: params.ntfLevel || '',
+                processSeq: params.processSeq || '',
+                remoteUser: gs.getProperty('bpas.remote.user')
+            };
+
+            // Create request configuration
+            var requestConfig = {
+                aliasId: '2aaa36642bb5fa10da0ef1bece91bf69',
+                path: '/chartfield/cfservice/updateapproval',
+                httpMethod: 'POST',
+                content: JSON.stringify(requestBody),
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            };
+
+            // Execute the REST call using REST Utils
+            return this._executeRestCall(requestConfig);
+
+        } catch (error) {
+            gs.error('ChartfieldAPI.updateApproval - Error: ' + error.message);
+            return {
+                error: true,
+                errorMessage: 'Internal error occurred: ' + error.message,
+                status: '500',
+                responseBody: null
+            };
+        }
+    },
+
+    /**
+     * Get Final Status API Call
+     * 
+     * @param {Object} params - Parameters object containing:
+     *   - reqNbr: Request number (required)
+     *   - remoteUser: Remote user (defaults to 'sl_user')
+     *   - assignedAppr: Assigned approver
+     *   - processSeq: Process sequence
+     * @returns {Object} Response object with error, status, and responseBody
+     */
+    getFinalStatus: function(params) {
+        try {
+            // Validate required parameters
+            if (!params || !params.reqNbr) {
+                return {
+                    error: true,
+                    errorMessage: 'Missing required parameter: reqNbr is required',
+                    status: '400',
+                    responseBody: null
+                };
+            }
+
+
+
+            // Prepare request body
+            var requestBody = {
+                reqNbr: params.reqNbr || '',
+                remoteUser: gs.getProperty('bpas.remote.user'),
+                assignedAppr: params.assignedAppr || '',
+                processSeq: params.processSeq || ''
+            };
+
+            // Create request configuration
+            var requestConfig = {
+                aliasId: '2aaa36642bb5fa10da0ef1bece91bf69',
+                path: '/chartfield/cfservice/getfinalstatus',
+                httpMethod: 'POST',
+                content: JSON.stringify(requestBody),
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            };
+
+            // Execute the REST call using REST Utils
+            return this._executeRestCall(requestConfig);
+
+        } catch (error) {
+            gs.error('ChartfieldAPI.getFinalStatus - Error: ' + error.message);
+            return {
+                error: true,
+                errorMessage: 'Internal error occurred: ' + error.message,
+                status: '500',
+                responseBody: null
+            };
+        }
+    },
+
+
+    /**
+     * Private method to execute REST calls using REST Utils
+     * 
+     * @param {Object} requestConfig - Request configuration object
+     * @returns {Object} Response object
+     */
+    _executeRestCall: function(requestConfig) {
+        try {
+            // Build the REST message using REST Utils RequestBuilder
+            // RequestBuilder will handle connection alias validation internally
+            var builder = new x_neyu_rest_utils.RequestBuilder(requestConfig);
+            var restMessage = builder.build();
+
+            if (!restMessage) {
+                return {
+                    error: true,
+                    errorMessage: 'Failed to build REST message',
+                    status: '500',
+                    responseBody: null
+                };
+            }
+
+            // Execute the REST message using REST Utils WebServiceUtil
+            var webServiceUtil = new x_neyu_rest_utils.WebServiceUtil();
+            var response = webServiceUtil.executeRestMessage(restMessage);
+
+            // Log the response for debugging
+            gs.info('ChartfieldAPI._executeRestCall - Response: ' + JSON.stringify(response));
+
+            return response;
+
+        } catch (error) {
+            gs.error('ChartfieldAPI._executeRestCall - Error executing REST call: ' + error.message);
+            return {
+                error: true,
+                errorMessage: 'Failed to execute REST call: ' + error.message,
+                status: '500',
+                responseBody: null
+            };
+        }
+    },
+
+
+    type: 'ChartfieldAccessAPI'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>mih5164</sys_created_by>
+        <sys_created_on>2025-11-25 15:50:20</sys_created_on>
+        <sys_id>ab607c7b2b55b210da0ef1bece91bf0a</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>ChartfieldAccessAPI</sys_name>
+        <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
+        <sys_update_name>sys_script_include_ab607c7b2b55b210da0ef1bece91bf0a</sys_update_name>
+        <sys_updated_by>mih5164</sys_updated_by>
+        <sys_updated_on>2025-12-10 20:05:31</sys_updated_on>
+    </sys_script_include>
+</record_update>
