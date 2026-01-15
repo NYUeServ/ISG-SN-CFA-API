@@ -2,20 +2,20 @@
     <sys_ws_query_parameter action="INSERT_OR_UPDATE">
         <example_value/>
         <name>case_number</name>
-        <required>false</required>
+        <required>true</required>
         <short_description>Provide case number</short_description>
         <sys_class_name>sys_ws_query_parameter</sys_class_name>
         <sys_created_by>mih5164</sys_created_by>
         <sys_created_on>2025-12-11 17:09:54</sys_created_on>
         <sys_id>9bd0237c2b3d3e108a69f0dcce91bf8b</sys_id>
-        <sys_mod_count>0</sys_mod_count>
+        <sys_mod_count>1</sys_mod_count>
         <sys_name>case_number</sys_name>
         <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
         <sys_policy/>
         <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
         <sys_update_name>sys_ws_query_parameter_9bd0237c2b3d3e108a69f0dcce91bf8b</sys_update_name>
         <sys_updated_by>mih5164</sys_updated_by>
-        <sys_updated_on>2025-12-11 17:09:54</sys_updated_on>
+        <sys_updated_on>2025-12-16 19:47:50</sys_updated_on>
         <web_service_definition display_value="Chartfield Access">61f8adf72b19b210da0ef1bece91bf6f</web_service_definition>
     </sys_ws_query_parameter>
 </record_update>

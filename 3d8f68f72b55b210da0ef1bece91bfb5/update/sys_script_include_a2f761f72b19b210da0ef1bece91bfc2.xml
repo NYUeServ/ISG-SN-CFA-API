@@ -164,8 +164,21 @@ ChartfieldAccessUtils.prototype = {
                 message: "Unable to locate user: " + body.benefeciaryNetid
             };
 
-            var dateUpdated = new GlideDateTime(new Date(body.dateUpdatedEST));
-            var dateCreated = new GlideDateTime(new Date(body.dateCreated));
+            var date = new Date(body.dateUpdatedEST);
+            var dateUpdated = new GlideDateTime();
+            dateUpdated.setValue(date.getTime());
+
+            var date1 = new Date(body.dateCreatedEST);
+            var dateCreated = new GlideDateTime();
+            dateCreated.setValue(date.getTime());
+
+
+
+            var approvalDate = "";
+
+            if (body.autoApproveAuth == "Y") {
+                approvalDate = new GlideDateTime().getDisplayValue();
+            }
 
             var variables = {
                 requestNum: body.requestNbr,
@@ -177,13 +190,21 @@ ChartfieldAccessUtils.prototype = {
                 status: body.status,
                 userUpdated: body.userUpdated,
                 apprStatus: body.apprStatus,
-                dateUpdated: dateUpdated.getValue(),
-                dateCreated: dateCreated.getValue(),
-                approverNetID_str: body.assignedFO,
+                dateUpdated: dateUpdated.getDisplayValue(),
+                dateCreated: dateCreated.getDisplayValue(),
                 approverNetID: fiscalOfficerSysId || "",
                 netID: userRequestedSysId,
                 requested_for: userRequestedSysId,
-                beneficiary: beneficiarySysId
+                beneficiary: beneficiarySysId,
+                reportingToolAccess: body.reportingToolAcess || "N",
+                ntfLevel: body.approvalhistorylist[0].ntfLevel,
+                summary: body.summary || "",
+                detail: body.requestDetail || "",
+                autoApproveAuth: body.autoApproveAuth || "N",
+                ilearnFlag: body.ilearnFlag || "N",
+                approvalDate: approvalDate
+
+
             };
 
             var catalogItem = new sn_sc.CatItem(srCatItemSysId);
@@ -213,13 +234,13 @@ ChartfieldAccessUtils.prototype = {
         <sys_created_by>mih5164</sys_created_by>
         <sys_created_on>2025-11-25 19:34:44</sys_created_on>
         <sys_id>a2f761f72b19b210da0ef1bece91bfc2</sys_id>
-        <sys_mod_count>8</sys_mod_count>
+        <sys_mod_count>20</sys_mod_count>
         <sys_name>ChartfieldAccessUtils</sys_name>
         <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
         <sys_update_name>sys_script_include_a2f761f72b19b210da0ef1bece91bfc2</sys_update_name>
         <sys_updated_by>mih5164</sys_updated_by>
-        <sys_updated_on>2025-12-16 15:46:39</sys_updated_on>
+        <sys_updated_on>2026-01-08 18:51:19</sys_updated_on>
     </sys_script_include>
 </record_update>
