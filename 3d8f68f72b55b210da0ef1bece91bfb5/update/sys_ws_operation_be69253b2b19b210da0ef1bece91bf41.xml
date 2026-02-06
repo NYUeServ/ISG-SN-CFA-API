@@ -7,9 +7,13 @@
         <enforce_acl>0a8015eaebf976105c06fcffcad0cd5f</enforce_acl>
         <http_method>POST</http_method>
         <name>Master Request</name>
-        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+        <operation_script><![CDATA[(function process( /*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    var debug = gs.getProperty("x_neyu_cfa_api.debug", "false") == "true";
 
-     var requestBody = request.body.data;
+    var requestBody = request.body.data;
+    if (debug) {
+        gs.info("Chartfield Access IR RequestBody: " + JSON.stringify(requestBody));
+    }
     var irCatItemSysId = 'ed7140b5ebe9f6105c06fcffcad0cd7a'; // sys_id of IR reecord producer
     var utils = new ChartfieldAccessUtils();
 
@@ -17,7 +21,10 @@
     var validation = utils.validateIRRequest(requestBody);
     if (!validation.valid) {
         response.setStatus(400);
-        return { status: "ERROR", message: validation.message };
+        return {
+            status: "ERROR",
+            message: validation.message
+        };
     }
 
     // Create IR Request
@@ -39,14 +46,14 @@
         <sys_created_by>mih5164</sys_created_by>
         <sys_created_on>2025-11-25 19:38:16</sys_created_on>
         <sys_id>be69253b2b19b210da0ef1bece91bf41</sys_id>
-        <sys_mod_count>7</sys_mod_count>
+        <sys_mod_count>9</sys_mod_count>
         <sys_name>Master Request</sys_name>
         <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
         <sys_policy/>
         <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
         <sys_update_name>sys_ws_operation_be69253b2b19b210da0ef1bece91bf41</sys_update_name>
         <sys_updated_by>mih5164</sys_updated_by>
-        <sys_updated_on>2025-12-16 17:10:05</sys_updated_on>
+        <sys_updated_on>2026-01-30 17:03:55</sys_updated_on>
         <web_service_definition display_value="Chartfield Access">61f8adf72b19b210da0ef1bece91bf6f</web_service_definition>
         <web_service_version/>
     </sys_ws_operation>

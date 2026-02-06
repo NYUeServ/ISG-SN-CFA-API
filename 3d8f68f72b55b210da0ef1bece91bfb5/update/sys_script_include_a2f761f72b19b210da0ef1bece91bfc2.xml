@@ -97,6 +97,7 @@ ChartfieldAccessUtils.prototype = {
                 //userRequested: body.userRequested,
                 dateRequested: body.dateRequested,
                 ilearnFlag: body.ilearnFlag,
+				link: body.link,
                 brioAccess: body.brioAccess,
                 obieeAccess: body.obieeAccess,
                 obieeRoleRequestList: body.obieeRoleRequestList,
@@ -170,7 +171,7 @@ ChartfieldAccessUtils.prototype = {
 
             var date1 = new Date(body.dateCreatedEST);
             var dateCreated = new GlideDateTime();
-            dateCreated.setValue(date.getTime());
+            dateCreated.setValue(date1.getTime());
 
 
 
@@ -179,6 +180,10 @@ ChartfieldAccessUtils.prototype = {
             if (body.autoApproveAuth == "Y") {
                 approvalDate = new GlideDateTime().getDisplayValue();
             }
+
+			var ntfLevel = "";
+if (Array.isArray(body.approvalhistorylist) && body.approvalhistorylist.length > 0)
+    ntfLevel = body.approvalhistorylist[0].ntfLevel || "";
 
             var variables = {
                 requestNum: body.requestNbr,
@@ -197,7 +202,7 @@ ChartfieldAccessUtils.prototype = {
                 requested_for: userRequestedSysId,
                 beneficiary: beneficiarySysId,
                 reportingToolAccess: body.reportingToolAcess || "N",
-                ntfLevel: body.approvalhistorylist[0].ntfLevel,
+                ntfLevel: ntfLevel,
                 summary: body.summary || "",
                 detail: body.requestDetail || "",
                 autoApproveAuth: body.autoApproveAuth || "N",
@@ -234,13 +239,13 @@ ChartfieldAccessUtils.prototype = {
         <sys_created_by>mih5164</sys_created_by>
         <sys_created_on>2025-11-25 19:34:44</sys_created_on>
         <sys_id>a2f761f72b19b210da0ef1bece91bfc2</sys_id>
-        <sys_mod_count>20</sys_mod_count>
+        <sys_mod_count>23</sys_mod_count>
         <sys_name>ChartfieldAccessUtils</sys_name>
         <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
         <sys_update_name>sys_script_include_a2f761f72b19b210da0ef1bece91bfc2</sys_update_name>
         <sys_updated_by>mih5164</sys_updated_by>
-        <sys_updated_on>2026-01-08 18:51:19</sys_updated_on>
+        <sys_updated_on>2026-02-02 22:06:33</sys_updated_on>
     </sys_script_include>
 </record_update>
