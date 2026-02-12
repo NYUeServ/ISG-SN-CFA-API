@@ -86,6 +86,7 @@ ChartfieldAccessUtils.prototype = {
                 status: 404,
                 message: "Unable to locate user: " + body.userRequested
             };
+		
 
             var variables = {
                 reqMasterNbr: body.reqMasterNbr,
@@ -100,9 +101,9 @@ ChartfieldAccessUtils.prototype = {
 				link: body.link,
                 brioAccess: body.brioAccess,
                 obieeAccess: body.obieeAccess,
-                obieeRoleRequestList: body.obieeRoleRequestList,
-                stagingRequestList: body.stagingRequestsList,
-                masterApprovalhistorylist: body.masterApprovalhistorylist,
+                //obieeRoleRequestList: body.obieeRoleRequestList,
+                //stagingRequestList: body.stagingRequestsList,
+                //masterApprovalhistorylist: body.masterApprovalhistorylist,
                 processSeq: body.processSeq,
                 fiscalOfficerRef: fiscalOfficerSysId,
                 beneficiaryRef: beneficiarySysId,
@@ -127,6 +128,124 @@ ChartfieldAccessUtils.prototype = {
                 variables.ntf_level =
                     masterApprovals[masterApprovals.length - 1].ntfLevel || "";
             }
+				//-----------------------------
+			
+var mrvsName = "chartfield";     // MUST match the MRVS name in your catalog item
+var incomingRows = body.stagingRequestsList;
+var mrvsRows = [];
+
+// Convert string to JSON if needed
+if (typeof incomingRows === "string") {
+    try {
+        incomingRows = JSON.parse(incomingRows);
+    } catch (e) {
+        gs.error("Invalid JSON in stagingRequestsList: " + e);
+        incomingRows = [];
+    }
+}
+
+// Ensure it's an array
+if (!Array.isArray(incomingRows)) {
+    incomingRows = [incomingRows];
+}
+
+// Build each MRVS row (force string for ALL fields)
+incomingRows.forEach(function(row) {
+    if (!row) return;
+
+    mrvsRows.push({
+        ser: String(row.ser || ""),
+        org: String(row.org || ""),
+        proj: String(row.proj || ""),
+        prog: String(row.prog || ""),
+        bu: String(row.bu || ""),
+        operationTypeDesc: String(row.operationTypeDesc || ""),
+        fund: String(row.fund || ""),
+        reqMasterNbr1: String(row.reqMasterNbr || ""),
+        isFreetext: String(row.isFreetext || ""),
+        operationType: String(row.operationType || ""),
+        serDesc: String(row.serDesc || ""),
+        stagingNbr: String(row.stagingNbr || ""),
+        account: String(row.account || "")
+    });
+});
+
+// Assign MRVS value
+//variables[mrvsName] = JSON.stringify(mrvsRows);
+
+// -----------------------------------------------------
+// BUILD MRVS FOR OBIEE ROLES (MRVS name: obieeRoleList)
+// -----------------------------------------------------
+var obieeMRVSName = "obieerolelist";   // <-- update to your MRVS name
+var incomingObieeList = body.obieeRoleRequestList;
+var obieeMRVSRows = [];
+
+// Parse if string
+if (typeof incomingObieeList === "string") {
+    try {
+        incomingObieeList = JSON.parse(incomingObieeList);
+    } catch (e) {
+        gs.error("Invalid JSON in obieeRoleRequestList: " + e);
+        incomingObieeList = [];
+    }
+}
+
+if (!Array.isArray(incomingObieeList))
+    incomingObieeList = [incomingObieeList];
+
+// Build MRVS rows
+incomingObieeList.forEach(function(item) {
+    if (!item || !item.obieeRoleVO) return;
+
+    var vo = item.obieeRoleVO;
+
+    obieeMRVSRows.push({
+        hasAccess: String(vo.hasAccess || false),
+        trainingCompleted: String(vo.trainingCompleted || false),
+        reportSeq: String(vo.reportSeq || ""),
+        rptName: String(vo.rptName || ""),
+        rptDesc: String(vo.rptDesc || ""),
+        isRequested: String(item.isRequested || false)
+    });
+});
+
+// -----------------------------------------------------
+// BUILD MRVS FOR MASTER APPROVAL HISTORY (MRVS name: masterApprovalList)
+// -----------------------------------------------------
+var masterMRVSName = "masterapprovallist";  // <-- update to your MRVS name
+var incomingMasterList = body.masterApprovalhistorylist;
+var masterMRVSRows = [];
+
+// Parse if string
+if (typeof incomingMasterList === "string") {
+    try {
+        incomingMasterList = JSON.parse(incomingMasterList);
+    } catch (e) {
+        gs.error("Invalid JSON in masterApprovalhistorylist: " + e);
+        incomingMasterList = [];
+    }
+}
+
+if (!Array.isArray(incomingMasterList))
+    incomingMasterList = [incomingMasterList];
+var self=this;
+incomingMasterList.forEach(function(item) {
+    if (!item) return;
+
+    masterMRVSRows.push({
+        recordId: String(item.recordId || ""),
+        //origAppr: String(item.origAppr || ""),
+		origAppr: self.getUserSysId(item.origAppr),
+        assignDate: String(item.assignDate || ""),
+        ntfLevel: String(item.ntfLevel || ""),
+        approverType: String(item.approverType || ""),
+        ntfType: String(item.ntfType || "")
+    });
+});
+
+variables[mrvsName] = JSON.stringify(mrvsRows);          // chartfield MRVS
+variables[obieeMRVSName] = JSON.stringify(obieeMRVSRows);   // OBIEE roles MRVS
+variables[masterMRVSName] = JSON.stringify(masterMRVSRows); // Master approval MRVS
 
             var catalogItem = new sn_sc.CatItem(irCatItemSysId);
             var values = {
@@ -239,13 +358,13 @@ if (Array.isArray(body.approvalhistorylist) && body.approvalhistorylist.length >
         <sys_created_by>mih5164</sys_created_by>
         <sys_created_on>2025-11-25 19:34:44</sys_created_on>
         <sys_id>a2f761f72b19b210da0ef1bece91bfc2</sys_id>
-        <sys_mod_count>23</sys_mod_count>
+        <sys_mod_count>35</sys_mod_count>
         <sys_name>ChartfieldAccessUtils</sys_name>
         <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
         <sys_update_name>sys_script_include_a2f761f72b19b210da0ef1bece91bfc2</sys_update_name>
         <sys_updated_by>mih5164</sys_updated_by>
-        <sys_updated_on>2026-02-02 22:06:33</sys_updated_on>
+        <sys_updated_on>2026-02-11 20:20:57</sys_updated_on>
     </sys_script_include>
 </record_update>
