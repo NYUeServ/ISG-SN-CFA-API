@@ -5,6 +5,7 @@
         <description/>
         <elevated_privilege>false</elevated_privilege>
         <encryption_context/>
+        <federated_id>TQ+RuVP0AvQuV0H7V3gL8Evl3mUFzGI/sUygYP+oi2Q=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>
         <name>x_neyu_cfa_api.chartfield_api_user</name>
