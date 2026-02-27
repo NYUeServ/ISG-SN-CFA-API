@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl">
+    <sys_security_acl action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <admin_overrides>true</admin_overrides>
+        <advanced>false</advanced>
+        <applies_to/>
+        <condition/>
+        <controlled_by_refs/>
+        <decision_type>allow</decision_type>
+        <description/>
+        <local_or_existing>Local</local_or_existing>
+        <name>Chartfield Access ACL</name>
+        <operation display_value="execute">execute</operation>
+        <script/>
+        <security_attribute/>
+        <sys_class_name>sys_security_acl</sys_class_name>
+        <sys_created_by>mih5164</sys_created_by>
+        <sys_created_on>2025-12-16 17:08:59</sys_created_on>
+        <sys_id>0a8015eaebf976105c06fcffcad0cd5f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Chartfield Access ACL</sys_name>
+        <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
+        <sys_update_name>sys_security_acl_0a8015eaebf976105c06fcffcad0cd5f</sys_update_name>
+        <sys_updated_by>mih5164</sys_updated_by>
+        <sys_updated_on>2025-12-16 17:08:59</sys_updated_on>
+        <type display_value="REST_Endpoint">REST_Endpoint</type>
+    </sys_security_acl>
+</record_update>

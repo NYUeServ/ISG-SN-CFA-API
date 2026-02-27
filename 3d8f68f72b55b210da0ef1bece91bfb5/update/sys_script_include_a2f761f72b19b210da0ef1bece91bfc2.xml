@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_neyu_cfa_api.ChartfieldAccessUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>ChartfieldAccessUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var ChartfieldAccessUtils = Class.create();
+ChartfieldAccessUtils.prototype = {
+    initialize: function() {},
+
+    getUserSysId: function(netID) {
+        if (!netID) return "";
+        var usr = new GlideRecord("sys_user");
+        usr.addQuery("user_name", netID.trim());
+        usr.query();
+        if (usr.next()) return usr.sys_id.toString();
+        return "";
+    },
+
+    validateRequiredFields: function(body, requiredFields) {
+        for (var i = 0; i < requiredFields.length; i++) {
+            if (!body[requiredFields[i]]) return requiredFields[i];
+        }
+        return "";
+    },
+
+    validateNestedObject: function(obj, requiredFields) {
+        for (var i = 0; i < requiredFields.length; i++) {
+            if (!obj[requiredFields[i]]) return requiredFields[i];
+        }
+        return "";
+    },
+
+    validateIRRequest: function(body) {
+        var irRequiredFields = [
+            'reqMasterNbr', 'foNetId', 'autoApproveAuth', 'userRequested',
+            'benefeciaryNetid', 'dateRequested', 'ilearnFlag', 'brioAccess',
+            'obieeAccess', 'stagingRequestsList', 'obieeRoleRequestList', 'processSeq'
+        ];
+        var missing = this.validateRequiredFields(body, irRequiredFields);
+        if (missing) return {
+            valid: false,
+            message: "Value " + missing + " is required."
+        };
+        return {
+            valid: true
+        };
+    },
+
+    validateSRRequest: function(body) {
+        var srRequiredFields = [
+            'requestNbr', 'reqMasterNbr', 'userRequested', 'benefeciaryNetid',
+            'dateUpdatedEST', 'brioAccess', 'obieeAccess', 'list', 'processSeq',
+            'status', 'userUpdated', 'apprStatus'
+        ];
+        var missing = this.validateRequiredFields(body, srRequiredFields);
+        if (missing) return {
+            valid: false,
+            message: "Value " + missing + " is required."
+        };
+        return {
+            valid: true
+        };
+    },
+
+    createIRRequest: function(body, irCatItemSysId) {
+        try {
+            var fiscalOfficerSysId = this.getUserSysId(body.foNetId);
+            var beneficiarySysId = this.getUserSysId(body.benefeciaryNetid);
+            var userRequestedSysId = this.getUserSysId(body.userRequested);
+
+            if (!fiscalOfficerSysId && body.autoApproveAuth != 'Y') return {
+                status: 404,
+                message: "Unable to locate user: " + body.foNetId
+            };
+            if (!beneficiarySysId) return {
+                status: 404,
+                message: "Unable to locate user: " + body.benefeciaryNetid
+            };
+            if (!userRequestedSysId) return {
+                status: 404,
+                message: "Unable to locate user: " + body.userRequested
+            };
+		
+
+            var variables = {
+                reqMasterNbr: body.reqMasterNbr,
+                //foNetId: body.foNetId,
+                autoApproveAuth: body.autoApproveAuth,
+                //beneficiaryNetid: body.benefeciaryNetid,
+                beneficiaryPhone: body.benefeciaryPhone || "",
+                benefeciaryDept: body.benefeciaryDept || "",
+                //userRequested: body.userRequested,
+                dateRequested: body.dateRequested,
+                ilearnFlag: body.ilearnFlag,
+				link: body.link,
+                brioAccess: body.brioAccess,
+                obieeAccess: body.obieeAccess,
+                //obieeRoleRequestList: body.obieeRoleRequestList,
+                //stagingRequestList: body.stagingRequestsList,
+                //masterApprovalhistorylist: body.masterApprovalhistorylist,
+                processSeq: body.processSeq,
+                fiscalOfficerRef: fiscalOfficerSysId,
+                beneficiaryRef: beneficiarySysId,
+                userRequestedRef: userRequestedSysId,
+                requested_for: userRequestedSysId,
+                onBehalfOf: "Yes"
+            };
+            variables.ntf_level = "";
+
+            var masterApprovals = body.masterApprovalhistorylist;
+
+            if (typeof masterApprovals === "string") {
+                try {
+                    masterApprovals = JSON.parse(masterApprovals);
+                } catch (e) {
+                    gs.error("Invalid masterApprovalhistorylist JSON: " + e.message);
+                    masterApprovals = [];
+                }
+            }
+
+            if (Array.isArray(masterApprovals) && masterApprovals.length > 0) {
+                variables.ntf_level =
+                    masterApprovals[masterApprovals.length - 1].ntfLevel || "";
+            }
+				//-----------------------------
+			
+var mrvsName = "chartfield";     // MUST match the MRVS name in your catalog item
+var incomingRows = body.stagingRequestsList;
+var mrvsRows = [];
+
+// Convert string to JSON if needed
+if (typeof incomingRows === "string") {
+    try {
+        incomingRows = JSON.parse(incomingRows);
+    } catch (e) {
+        gs.error("Invalid JSON in stagingRequestsList: " + e);
+        incomingRows = [];
+    }
+}
+
+// Ensure it's an array
+if (!Array.isArray(incomingRows)) {
+    incomingRows = [incomingRows];
+}
+
+// Build each MRVS row (force string for ALL fields)
+incomingRows.forEach(function(row) {
+    if (!row) return;
+
+    mrvsRows.push({
+        ser: String(row.ser || ""),
+        org: String(row.org || ""),
+        proj: String(row.proj || ""),
+        prog: String(row.prog || ""),
+        bu: String(row.bu || ""),
+        operationTypeDesc: String(row.operationTypeDesc || ""),
+        fund: String(row.fund || ""),
+        reqMasterNbr1: String(row.reqMasterNbr || ""),
+        isFreetext: String(row.isFreetext || ""),
+        operationType: String(row.operationType || ""),
+        serDesc: String(row.serDesc || ""),
+        stagingNbr: String(row.stagingNbr || ""),
+        account: String(row.account || "")
+    });
+});
+
+// Assign MRVS value
+//variables[mrvsName] = JSON.stringify(mrvsRows);
+
+// -----------------------------------------------------
+// BUILD MRVS FOR OBIEE ROLES (MRVS name: obieeRoleList)
+// -----------------------------------------------------
+var obieeMRVSName = "obieerolelist";   // <-- update to your MRVS name
+var incomingObieeList = body.obieeRoleRequestList;
+var obieeMRVSRows = [];
+
+// Parse if string
+if (typeof incomingObieeList === "string") {
+    try {
+        incomingObieeList = JSON.parse(incomingObieeList);
+    } catch (e) {
+        gs.error("Invalid JSON in obieeRoleRequestList: " + e);
+        incomingObieeList = [];
+    }
+}
+
+if (!Array.isArray(incomingObieeList))
+    incomingObieeList = [incomingObieeList];
+
+// Build MRVS rows
+incomingObieeList.forEach(function(item) {
+    if (!item || !item.obieeRoleVO) return;
+
+    var vo = item.obieeRoleVO;
+
+    obieeMRVSRows.push({
+        hasAccess: String(vo.hasAccess || false),
+        trainingCompleted: String(vo.trainingCompleted || false),
+        reportSeq: String(vo.reportSeq || ""),
+        rptName: String(vo.rptName || ""),
+        rptDesc: String(vo.rptDesc || ""),
+        isRequested: String(item.isRequested || false)
+    });
+});
+
+// -----------------------------------------------------
+// BUILD MRVS FOR MASTER APPROVAL HISTORY (MRVS name: masterApprovalList)
+// -----------------------------------------------------
+var masterMRVSName = "masterapprovallist";  // <-- update to your MRVS name
+var incomingMasterList = body.masterApprovalhistorylist;
+var masterMRVSRows = [];
+
+// Parse if string
+if (typeof incomingMasterList === "string") {
+    try {
+        incomingMasterList = JSON.parse(incomingMasterList);
+    } catch (e) {
+        gs.error("Invalid JSON in masterApprovalhistorylist: " + e);
+        incomingMasterList = [];
+    }
+}
+
+if (!Array.isArray(incomingMasterList))
+    incomingMasterList = [incomingMasterList];
+var self=this;
+incomingMasterList.forEach(function(item) {
+    if (!item) return;
+
+    masterMRVSRows.push({
+        recordId: String(item.recordId || ""),
+        //origAppr: String(item.origAppr || ""),
+		origAppr: self.getUserSysId(item.origAppr),
+        assignDate: String(item.assignDate || ""),
+        ntfLevel: String(item.ntfLevel || ""),
+        approverType: String(item.approverType || ""),
+        ntfType: String(item.ntfType || "")
+    });
+});
+
+variables[mrvsName] = JSON.stringify(mrvsRows);          // chartfield MRVS
+variables[obieeMRVSName] = JSON.stringify(obieeMRVSRows);   // OBIEE roles MRVS
+variables[masterMRVSName] = JSON.stringify(masterMRVSRows); // Master approval MRVS
+
+            var catalogItem = new sn_sc.CatItem(irCatItemSysId);
+            var values = {
+                variables: variables,
+                sysparm_id: irCatItemSysId
+            };
+            var targetRecordDetails = catalogItem.submitProducer(values);
+
+            return {
+                status: 200,
+                sl_nbr: targetRecordDetails.number || targetRecordDetails.sys_id,
+                nested_errors: []
+            };
+
+        } catch (ex) {
+            gs.error("Error creating IR request: " + ex.message);
+            return {
+                status: 500,
+                message: "Unable to place IR Access Request: " + ex.message
+            };
+        }
+    },
+
+    createSRRequest: function(body, srCatItemSysId) {
+        try {
+            var fiscalOfficerSysId = this.getUserSysId(body.assignedFO);
+            var userRequestedSysId = this.getUserSysId(body.userRequested);
+            var beneficiarySysId = this.getUserSysId(body.benefeciaryNetid);
+
+            if (!userRequestedSysId) return {
+                status: 404,
+                message: "Unable to locate user: " + body.userRequested
+            };
+            if (!beneficiarySysId) return {
+                status: 404,
+                message: "Unable to locate user: " + body.benefeciaryNetid
+            };
+
+            var date = new Date(body.dateUpdatedEST);
+            var dateUpdated = new GlideDateTime();
+            dateUpdated.setValue(date.getTime());
+
+            var date1 = new Date(body.dateCreatedEST);
+            var dateCreated = new GlideDateTime();
+            dateCreated.setValue(date1.getTime());
+
+
+
+            var approvalDate = "";
+
+            if (body.autoApproveAuth == "Y") {
+                approvalDate = new GlideDateTime().getDisplayValue();
+            }
+
+			var ntfLevel = "";
+if (Array.isArray(body.approvalhistorylist) && body.approvalhistorylist.length > 0)
+    ntfLevel = body.approvalhistorylist[0].ntfLevel || "";
+
+            var variables = {
+                requestNum: body.requestNbr,
+                reqMasterNbr: body.reqMasterNbr,
+                brioAccess: body.brioAccess,
+                obieeAccess: body.obieeAccess,
+                list: JSON.stringify(body.list),
+                processSeq: body.processSeq,
+                status: body.status,
+                userUpdated: body.userUpdated,
+                apprStatus: body.apprStatus,
+                dateUpdated: dateUpdated.getDisplayValue(),
+                dateCreated: dateCreated.getDisplayValue(),
+                approverNetID: fiscalOfficerSysId || "",
+                netID: userRequestedSysId,
+                requested_for: userRequestedSysId,
+                beneficiary: beneficiarySysId,
+                reportingToolAccess: body.reportingToolAcess || "N",
+                ntfLevel: ntfLevel,
+                summary: body.summary || "",
+                detail: body.requestDetail || "",
+                autoApproveAuth: body.autoApproveAuth || "N",
+                ilearnFlag: body.ilearnFlag || "N",
+                approvalDate: approvalDate
+
+
+            };
+
+            var catalogItem = new sn_sc.CatItem(srCatItemSysId);
+            var values = {
+                variables: variables,
+                sysparm_id: srCatItemSysId
+            };
+            var targetRecordDetails = catalogItem.submitProducer(values);
+
+            return {
+                status: 200,
+                sl_nbr: targetRecordDetails.number || targetRecordDetails.sys_id
+            };
+
+        } catch (ex) {
+            gs.error("Error creating SR request: " + ex.message);
+            return {
+                status: 500,
+                message: "Unable to place SR Access Request: " + ex.message
+            };
+        }
+    },
+
+    type: 'ChartfieldAccessUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>mih5164</sys_created_by>
+        <sys_created_on>2025-11-25 19:34:44</sys_created_on>
+        <sys_id>a2f761f72b19b210da0ef1bece91bfc2</sys_id>
+        <sys_mod_count>35</sys_mod_count>
+        <sys_name>ChartfieldAccessUtils</sys_name>
+        <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
+        <sys_update_name>sys_script_include_a2f761f72b19b210da0ef1bece91bfc2</sys_update_name>
+        <sys_updated_by>mih5164</sys_updated_by>
+        <sys_updated_on>2026-02-11 20:20:57</sys_updated_on>
+    </sys_script_include>
+</record_update>

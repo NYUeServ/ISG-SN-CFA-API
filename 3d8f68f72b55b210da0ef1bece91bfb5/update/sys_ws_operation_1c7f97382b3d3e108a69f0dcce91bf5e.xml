@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>0a8015eaebf976105c06fcffcad0cd5f</enforce_acl>
+        <http_method>GET</http_method>
+        <name>Chartfield_Status</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+
+    var responseBody = {};
+    var caseNumber = request.queryParams.case_number;
+
+    // -------------------------
+    // Validate Input
+    // -------------------------
+    if (!caseNumber) {
+        responseBody.status = "ERROR! Please specify a case_number";
+        response.setStatus(400);
+        response.setBody(responseBody);
+        return;
+    }
+
+    // -------------------------
+    // Query sn_customerservice_financelink table
+    // -------------------------
+    var gr = new GlideRecord("sn_customerservice_financelink");
+    gr.addQuery("number", caseNumber);
+    gr.query();
+
+    if (gr.next()) {
+        responseBody.status = gr.getDisplayValue("state");
+    } else {
+        responseBody.status = "Cannot locate Case Number: " + caseNumber;
+    }
+
+    response.setBody(responseBody);
+
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_neyu_cfa_api/chartfield_access/case_status</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/case_status</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>mih5164</sys_created_by>
+        <sys_created_on>2025-12-11 17:05:18</sys_created_on>
+        <sys_id>1c7f97382b3d3e108a69f0dcce91bf5e</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Chartfield_Status</sys_name>
+        <sys_package display_value="Chartfield Access Integration Spoke" source="x_neyu_cfa_api">3d8f68f72b55b210da0ef1bece91bfb5</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Chartfield Access Integration Spoke">3d8f68f72b55b210da0ef1bece91bfb5</sys_scope>
+        <sys_update_name>sys_ws_operation_1c7f97382b3d3e108a69f0dcce91bf5e</sys_update_name>
+        <sys_updated_by>mih5164</sys_updated_by>
+        <sys_updated_on>2025-12-16 17:09:42</sys_updated_on>
+        <web_service_definition display_value="Chartfield Access">61f8adf72b19b210da0ef1bece91bf6f</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>
